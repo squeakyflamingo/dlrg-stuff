@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Einsatz-PO</title>
+        <style>
+            html,
+            body {
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            #image svg {
+                max-height: 90vh;
+                width: 100%;
+            }
+
+            #pageOutput {
+                text-align: center;
+                width: 90%;
+                margin: auto;
+                border: black 2px solid;
+                border-radius: 1rem;
+                font-size: 1.5rem;
+            }
+
+            .active {
+                display: block !important;
+            }
+
+            .hovered {
+                stroke: magenta !important;
+                fill: white !important;
+            }
+
+            .hovered ~ g>path {
+                fill: black;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="image" class="image"></div>
+
+        <div id="pageOutput">
+            Einfach mit der Maus über eine Ausbildung fahren!
+        </div>
+    </body>
+    <script>
+        //LookUp-Table for qualification names
+        const lookUp = {
+            "151": "Deutsches Rettungsschwimmabzeichen in Bronze",
+            "152": "Deutsches Rettungsschwimmabzeichen in Silber",
+            "161": "Deutsches Schorcheltauchabzeichen",
+            "173": "Gemeinsamer Grundausbildungsblock",
+            "190": "Allgemeine Multiplikatorenschulung",
+            "331": "Sanitätshelfer (San A)",
+
+            "WRD": "Ausbildungen in der Prüfungsordnung Wasserrettungsdienst",
+            "401": "Basisausbildung Einsatzdienste",
+            "402": "Aufbaumodul „Umgang mit Rettungsgeräten und Überwachung von Wasserflächen“",
+            "403": "Aufbaumodul „Schwimmen in fließenden Gewässern“",
+            "404": "Aufbaumodul „Einsatz in Küstengewässern“",
+            "411": "Fachausbildung Wasserrettungsdienst",
+            "421": "Führungslehre",
+            "431": "Wachführer",
+            "481": "Ausbilder Wasserrettungsdienst",
+            "491": "Multiplikator Wasserrettungsdienst",
+
+            "Boot": "Ausbildungen in der Prüfungsordnung Bootswesen",
+            "511": "DLRG-Bootsführerschein A",
+            "512": "DLRG-Bootsführerschein B",
+            "581": "Ausbilder für den DLRG-Bootsführerschein A",
+            "582": "Ausbilder für den DLRG-Bootsführerschein B",
+            "591": "Multiplikator für den DLRG-Bootsführerschein A",
+            "592": "Multiplikator für den DLRG-Bootsführerschein B",
+
+            "Tauchen": "Ausbildungen in der Prüfungsordnung Tauchen",
+            "612": "DLRG-Einsatztaucher Stufe 1",
+            "613": "DLRG-Einsatztaucher Stufe 2",
+            "631": "Taucheinsatzführer",
+            "641": "Signalmann",
+            "682": "DLRG-Lehrtaucher",
+            "691": "DLRG-Multiplikator Einsatztauchen",
+
+            "IuK": "Ausbildungen in der Prüfungsordnung Sprechfunk",
+            "710": "Sprechfunkunterweisung DLRG-Betriebsfunk",
+            "711": "DLRG-Sprechfunker",
+            "712": "BOS-Sprechfunker -analog-",
+            "715": "BOS-Sprechfunker -digital-",
+            "712-715": "BOS-Sprechfunker -analog- oder -digital-",
+            "721-722": "UBI und DFbz",
+            "781": "Ausbilder Sprechfunk",
+            "782": "Ausbilder BOS -digital-",
+            "791": "Multiplikator Sprechfunk",
+            "792": "Multiplikator Digitalfunk",
+
+            "KatS": "Ausbildungen in der Prüfungsordnung Katastrophenschutz",
+            "811": "Helfergrundausbildung ",
+            "811-41": "Aufbaumodul „Grundlagen des Katastrophenschutzes und der öffentlichen Gefahrenabwehr“",
+            "812": "Landesspezifische Ausbildung",
+            "830": "Truppführerausbildung",
+            "831": "Gruppenführerausbildung (Führen in der Führungsstufe A)",
+            "832": "Zugführer- und Einsatzführerausbildung (Führen in der Führungsstufe B)",
+            "833": "Verbandsführerausbildung (Führen in der Führungsstufe C)",
+            "881": "Ausbilder Katastrophenschutz",
+            "891": "Multiplikator Katastrophenschutz",
+
+            "SR": "Ausbildungen in der Prüfungsordnung Strömungsrettung",
+            "1011": "Strömungsretter 1 (SR1)",
+            "1012": "Sachkundiger PSA gegen Absturz",
+            "1021": "Modul Seiltechnik",
+            "1022": "Modul Wildwasser",
+            "1023": "Modul Rafting",
+            "1024": "Modul Canyoning",
+            "1025": "Modul Absturzsicherung",
+            "1028": "Strömungsretter 2 (SR 2)",
+            "1030": "Truppführer Strömungsrettung",
+            "1031": "Gruppenführer Strömungsrettung",
+            "1041": "Modul Evakuierung",
+            "1051": "Strömungsrettungs-Techniker (SRT)",
+            "1081": "Ausbilder Strömungsrettung",
+            "1082": "Ausbilder Sachkunde PSA gegen Absturz",
+            "1083": "Ausbilder SRT",
+            "1091": "Multiplikator Strömungsrettung",
+        }
+
+        //Define output-element
+        const pageOutput = document.getElementById('pageOutput')
+
+        //Define event for loading process
+        const svgLoadedEvent = new Event("SVGLoaded")
+
+        //Define function to run on hover
+        const hoverFunction = (element) => {
+            element.children[0].classList.add('hovered')
+            output = element.getAttribute('data-name') ? element.getAttribute('data-name') : element.id
+            pageOutput.innerHTML = output + ": " + lookUp[output]
+        }
+
+        //Define function to run on hoverend
+        const resetFunction = (element) => {
+            element.children[0].classList.remove('hovered')
+            pageOutput.innerHTML = "Einfach mit der Maus über eine Ausbildung fahren!"
+        }
+
+        //Load SVG from file and add it to DOM
+        fetch('Einsatz-PO.svg').then(response => {
+            return response.text()
+        }).then(data => {
+            document.getElementById('image').innerHTML = data
+            document.dispatchEvent(svgLoadedEvent)
+        })
+
+        // After SvG is loaded, add event-functions to qualifications
+        document.addEventListener('SVGLoaded', () => {
+            Array.from(document.querySelectorAll('#Content>g')).forEach((element) => {
+                element.onmouseover = function(){hoverFunction(this)}
+                element.onmouseleave = function(){resetFunction(this)}
+            })
+        })
+    </script>
+</html>
