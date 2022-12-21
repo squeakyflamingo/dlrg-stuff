@@ -1,0 +1,25 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font: 14px sans-serif;
+    background: #1d2228;
+    color: white;
+}
+
+label {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+img.preview {
+    max-width: 95vw;
+    margin: 2.5vw;
+}
+
+/* body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+} */

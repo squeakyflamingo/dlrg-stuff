@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processor</title>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="controls">
+        <label for="imgInput">Bild</label>
+        <input type="file" name="imgInput" onchange="imgInput(this)">
+        <br>
+
+        <label for="logoColor">Logofarbe</label>
+        <select type="" id="logo" name="logoColor">
+            <option value="vollfarbe">vollfarbe</option>
+            <option value="rot">rot</option>
+            <option value="gelb">gelb</option>
+        </select>
+        <br>
+        <br>
+
+        <label for="render">Render</label>
+        <input type="button" value="Render" onclick="renderOutput()">
+    </div>
+
+    <img id="preview" class="preview">
+</body>
+</html>
